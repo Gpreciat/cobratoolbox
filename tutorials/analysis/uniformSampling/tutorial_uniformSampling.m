@@ -1,5 +1,5 @@
 %% Uniform sampling
-%% Author(s): *Hulda S. Haraldsd�ttir and German A. Preciat Gonzalez, *Systems Biochemistry Group, University of Luxembourg.
+%% Author(s): *Hulda S. Haraldsdóttir and German A. Preciat Gonzalez, *Systems Biochemistry Group, University of Luxembourg.
 %% Reviewer(s): Almut Heinken, Molecular Systems Physiology Group, University of Luxembourg.
 %% INTRODUCTION
 % The flux space $<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&ohm;</mi></mrow></math>$ 
@@ -42,14 +42,14 @@
 % In COBRA v3 there are three different sampling algorithms: coordinate hit-and-run 
 % with rounding (CHRR), artificial centring hit-and-run (ACHR) and the minimum 
 % free energy (MFE). In this tutorial, we will use the CHRR algorithm$<math xmlns="http://www.w3.org/1998/Math/MathML" 
-% display="inline"><mrow><msup><mrow><mtext>?</mtext></mrow><mrow><mn>2</mn></mrow></msup></mrow></math>$ 
+% display="inline"><mrow><msup><mrow><mtext> </mtext></mrow><mrow><mn>2</mn></mrow></msup></mrow></math>$ 
 % to uniformly sample a high dimensionally constraint-based model of the differentiation 
 % of induced pluripotent stem cells to dopaminergic neurons (iPSC_dopa). The algorithm 
-% consists of rounding the anisotropic flux space  ? using a maximum volume ellipsoid 
-% algorithm$<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msup><mrow><mtext>?
+% consists of rounding the anisotropic flux space  Ω using a maximum volume ellipsoid 
+% algorithm$<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msup><mrow><mtext> 
 % </mtext></mrow><mrow><mn>3</mn></mrow></msup></mrow></math>$ and then performs 
 % a uniform sampling based on the provably efficient hit-and-run random walk$<math 
-% xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msup><mrow><mtext>?
+% xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><msup><mrow><mtext> 
 % </mtext></mrow><mrow><mn>4</mn></mrow></msup></mrow></math>$. Below is a high-level 
 % illustration of the process to uniformly sample a random metabolic flux vector 
 % $<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi 
@@ -59,7 +59,7 @@
 % display="inline"><mrow><mi mathvariant="italic">T</mi></mrow></math>$ to $<math 
 % xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&ohm;</mi></mrow></math>$. 
 % The transformed set $<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>&ohm;</mi><mo>&prime;</mo><mo>=</mo><mi 
-% mathvariant="italic">T</mi><mi>&ohm;</mi><mtext>?</mtext></mrow></math>$ is 
+% mathvariant="italic">T</mi><mi>&ohm;</mi><mtext> </mtext></mrow></math>$ is 
 % such that its maximal inscribed ellipsoid (blue) approximates a unit ball. *2)* 
 % Take $<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi 
 % mathvariant="italic">q</mi></mrow></math>$ steps of coordinate hit-and-run. 
@@ -217,7 +217,7 @@ xlabel('Flux (mmol/gDW/h)')
 ylabel('# samples')
 %% 
 % Undersampling results from selecting too small sampling parameters. The 
-% appropriate parameter values depend on the dimension of the polytope ?? defined 
+% appropriate parameter values depend on the dimension of the polytope Ω  defined 
 % by the model constraints (see intro). One rule of thumb says to set  $<math 
 % xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi mathvariant="normal">nSkip</mi><mo>=</mo><mn>8</mn><mo>*</mo><msup><mrow><mi 
 % mathvariant="normal">dim</mi><mrow><mo>(</mo><mrow><mi>&ohm;</mi></mrow><mo>)</mo></mrow></mrow><mrow><mn>2</mn></mrow></msup></mrow></math>$ 
@@ -306,10 +306,10 @@ for i = rxnsIdx
     hold off
 end
 %% References
-% 1. Orth, J. D., Thiele I., and Palsson, B. �. What is flux balance analysis? 
+% 1. Orth, J. D., Thiele I., and Palsson, B. Ø. What is flux balance analysis? 
 % _Nat. Biotechnol._ 28(3), 245-248 (2010).
 % 
-% 2. Haraldsd�ttir, H. S., Cousins, B., Thiele, I., Fleming, R.M.T., and 
+% 2. Haraldsdóttir, H. S., Cousins, B., Thiele, I., Fleming, R.M.T., and 
 % Vempala, S. CHRR: coordinate hit-and-run with rounding for uniform sampling 
 % of constraint-based metabolic models. _Bioinformatics_. 33(11), 1741-1743 (2016).
 % 
