@@ -91,14 +91,12 @@
 % The CHRR algorithm is an useful tool to sample high dimentional models (bigger 
 % than 10,000 reactions). 
 %% Equipment setup
-% Please note that some of the plotting options in the tutorial require Matlab 
-% 2016a or higher. Moreover, the tutorial requires a working installation of the 
-% Parallel Computing Toolbox.
-% 
-% Please set a solver, e.g., gurobi. Note that the solver ibm_cplex is required 
-% for the function fastFVA. For a guide how to install solvers, please refer to 
-% the <https://github.com/opencobra/cobratoolbox/blob/master/docs/source/installation/solvers.md 
-% opencobra documentation>.
+% To perform FVA using the function |fastFVA| it is necessary to have CPLEX 
+% solver installed. In this tutorial, we will use the function |fluxVariability|. 
+% Change the variable |options.useFastFVA = 1 |to use |fastFVA|.
+
+options.useFastFVA = 0;
+changeCobraSolver('gurobi');
 %% Modelling
 % We will investigate ATP energy production with limited and unlimited oxygen 
 % uptake, following closely the flux balance analysis (FBA) tutorial published 
@@ -112,7 +110,7 @@
 
 global CBTDIR
 load([CBTDIR filesep 'tutorials' filesep 'uniformSampling' filesep 'data' filesep 'iPSC_DA.mat'...
-    ], 'modelUptClosed') % Load the model
+     ], 'modelUptClosed') % Load the model
 model = modelUptClosed;
 model = changeRxnBounds(model, 'EX_glc(e)', -18.5, 'l');
 model.c = 0 * model.c; % clear the objective
@@ -126,8 +124,13 @@ limitedOx = changeRxnBounds(model, 'EX_o2(e)', -4, 'l');
 % Flux variability analysis (FVA) returns the minimum and maximum possible flux 
 % through every reaction in a model.
 
-[minUn, maxUn] = fastFVA(unlimitedOx, 100);
-[minLim, maxLim] = fastFVA(limitedOx, 100);
+if options.useFastFVA
+    [minUn, maxUn] = fastFVA(unlimitedOx, 100);
+    [minLim, maxLim] = fastFVA(limitedOx, 100);
+else
+    [minUn, maxUn] = fluxVariability(unlimitedOx);
+    [minLim, maxLim] = fluxVariability(limitedOx);
+end
 %% 
 % FVA predicts faster maximal ATP production with unlimited and limited 
 % oxygen uptake conditions.
