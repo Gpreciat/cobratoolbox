@@ -1,10 +1,10 @@
-function standardisedRxns = obtainAtomMappingsRDT(model, molFileDir, outputDir, maxTime, standariseRxn)
+function balancedRxns = obtainAtomMappingsRDT(model, molFileDir, outputDir, maxTime, standariseRxn)
 % Compute atom mappings for reactions with implicit hydrogens in a
 % metabolic network using RDT algorithm
 %
 % USAGE:
 %
-%    unmappedRxns = obtainAtomMappingsRDT(model, molFileDir, rxnDir, maxTime, standariseRxn)
+%    balancedRxns = obtainAtomMappingsRDT(model, molFileDir, rxnDir, maxTime, standariseRxn)
 %
 % INPUTS:
 %    model:         COBRA model with following fields:
@@ -168,13 +168,13 @@ if standariseRxn == true
             'atomMapped'], [outputDir 'rxnFiles']);
         if standardised
             counterBalanced = counterBalanced + 1;
-            standardisedRxns{counterBalanced} = regexprep(fnames(i).name, '.rxn', '');
+            balancedRxns{counterBalanced} = regexprep(fnames(i).name, '.rxn', '');
         else
             counterUnbalanced = counterUnbalanced + 1;
         end
     end
 else
-    standardisedRxns = [];
+    balancedRxns = 'Not checked';
     counterUnbalanced = length(dir([outputDir 'atomMapped' filesep '*.rxn']));
 end
 
