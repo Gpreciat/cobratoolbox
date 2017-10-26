@@ -7,7 +7,7 @@ function balanced = acsendingAtomMaps(rxnFile)
 %
 % INPUT:
 %    rxnFile:        Name and path of the RXN file to asign ascending atom
-%                   mappings.
+%                    mappings.
 %
 % OUTPUTS:
 %    balanced:       Logical value indicating if the RXN file is balanced

@@ -168,11 +168,11 @@ for i = 1:nVectors
                 [~,col2] = sort(rxns2);
                 col2col = sortrows([col2 col1],1); % rxns2 = rxns1(col2col)
 
-                if all(all(mgraph2 == mgraph1(row2row,col2col)))
-                    atoms2instances(comp2) = rowidx(row2row); % map atoms to moieties
-                else
-                    warning('atom graphs not isomorphic'); % Hopefully we never get here. Complicates things.
-                end
+%                 if all(all(mgraph2 == mgraph1(row2row,col2col)))
+%                     atoms2instances(comp2) = rowidx(row2row); % map atoms to moieties
+%                 else
+%                     warning('atom graphs not isomorphic'); % Hopefully we never get here. Complicates things.
+%                 end
             end
         end
     end

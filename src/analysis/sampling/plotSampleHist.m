@@ -1,10 +1,10 @@
-function plotSampleHist(rxnNames, samples, models, nBins, perScreen, modelNames, add2Plot)
+function sampleFig = plotSampleHist(rxnNames, samples, models, nBins, perScreen, modelNames)
 % Compares flux histograms for one or more samples
 % for one or more reactions
 %
 % USAGE:
 %
-%    plotSampleHist(rxnNames, samples, models, nBins, perScreen, modelNames, add2Plot)
+%    plotSampleHist(rxnNames, samples, models, nBins, perScreen, modelNames)
 %
 % INPUTS:
 %    rxnNames:     Cell array of reaction abbreviations
@@ -18,9 +18,9 @@ function plotSampleHist(rxnNames, samples, models, nBins, perScreen, modelNames,
 %                  (press 'enter' to advance screens)
 %    modelNames:   Cell array containing the name of the models (used for the
 %                  plot's legend).
-%    add2Plot:     Struct array with additional data to show more
-%                  detaled information (real measuremets, FVA resuts, statistics
-%                  results, etc).
+%
+% OUTPUTS:
+%    sampleFig:    Figure with the sample plotted.
 %
 % EXAMPLE:
 %
@@ -56,12 +56,6 @@ if nargin < 6 || isempty(modelNames)
     for i = 1:length(models)
         modelNames{i} = ['Model ' num2str(i)];
     end
-end
-
-if  nargin < 7 || isempty(add2Plot)
-    adData = false;
-else
-    adData = true;
 end
 
 if ~iscell(samples)
@@ -113,7 +107,7 @@ end
 
 j = 1;
 flagQuit = false;
-fig = figure;
+sampleFig = figure;
 while ~flagQuit
     clear counts;
     currLB = 1e6;
@@ -174,21 +168,6 @@ while ~flagQuit
     xlabel({['Flux of ' rxnNameList{j} ' ']; '(mmol/gDW/h)'})
     ylabel('Frequency')
     
-    % Additional data is added
-    if adData
-        hold on
-        ylim = get(gca, 'ylim');
-        for i=1:length(add2Plot)
-            plot(repmat(add2Plot(i).line,1,2), ylim, '--', 'Color', 'k')
-            text(add2Plot(i).line, ylim(2) - (ylim(2) / (6 - i)), add2Plot(i).label, 'Color', 'k');
-        end
-        maxIdx = max([add2Plot.line]);
-        if abs(currLB - .0001 - currUB + .0001) < abs(currLB - maxIdx + (maxIdx / 10))
-            axis([currLB maxIdx + (maxIdx / 10) 0 max(max(freq))]);
-        end
-        hold off
-    end
-    
     x0 = 10;
     y0 = 10;
     width = 560;
@@ -205,11 +184,11 @@ while ~flagQuit
         while isempty(user_input) || ~(ismember(user_input(1), {'b', 'r', 'q', 'e'}))
             user_input = input('End of sampples; reverse (r) or quit (q)): ', 's');
         end
-        clear fig
+        %clear fig
     elseif mod(j, perScreen) == 0
         user_input = input('Move forward (f), reverse (r) or quit (q): ', 's');
         if isempty(user_input), user_input = 'f'; end
-        clear fig
+        %clear fig
     end
     if user_input(1) =='r' || user_input(1) == 'b'
         j = j - perScreen * 2 + 1;

@@ -76,22 +76,8 @@ if ~exist([outputDir filesep 'rdtAlgorithm.jar'], 'file')
     urlwrite('https://github.com/asad/ReactionDecoder/releases/download/1.5.1/rdt-1.5.1-SNAPSHOT-jar-with-dependencies.jar',[outputDir filesep 'rdtAlgorithm.jar']);
 end
 
-% Delete the protons (hydrogens) for the metabolic network
-% From metabolites
-S = full(model.S);
-if isfield(model,'metFormulas')
-    hToDelete = ismember(model.metFormulas, 'H');
-    S(hToDelete, :) = [];
-    model.mets(hToDelete) = [];
-    % From reactions
-    hydrogenCols = all(S == 0, 1);
-    S(:, hydrogenCols) = [];
-    model.rxns(hydrogenCols) = [];
-    model.S = S;
-end
-
-
 % Format inputs
+S = full(model.S);
 mets = model.mets;
 fmets = regexprep(mets, '(\[\w\])', '');
 rxns = model.rxns;
