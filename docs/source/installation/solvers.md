@@ -114,10 +114,10 @@ Platform-specific instructions are marked with
     ````
     Append the following lines, hit the `ESC` key, then save and exit by typing `CTRL-X` and hitting ENTER:
     ````
-    export GUROBI_HOME="/opt/gurobi<ver>/linux64"
+    export GUROBI_PATH="/opt/gurobi<ver>"
+    export GUROBI_HOME="${GUROBI_PATH}/linux64"
     export PATH="${PATH}:${GUROBI_HOME}/bin"
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-    export GUROBI_PATH="${GUROBI_HOME}"
     ````
     Reload your `~/.bashrc`:
     ````bash
