@@ -214,12 +214,12 @@ for i = 1:nVectors
                 % attributes of nodes and edges
                 p = isomorphism(d1,d2,'NodeVariables','Met','EdgeVariables','Rxn');
                 
-                if ~isempty(p)
-                    d2 = reordernodes(d2,p);
-                    atoms2instances(d2.Nodes.Atom) = rowidx; % map atoms to moieties
-                else
-                    warning('atom graphs not isomorphic'); % Should never get here. Something went wrong.
-                end
+%                 if ~isempty(p)
+%                     d2 = reordernodes(d2,p);
+%                     atoms2instances(d2.Nodes.Atom) = rowidx; % map atoms to moieties
+%                 else
+%                     warning('atom graphs not isomorphic'); % Should never get here. Something went wrong.
+%                 end
                 
             elseif license('test','Bioinformatics_Toolbox')
                 [h1,~] = find(mgraph1 < 0);
@@ -232,7 +232,7 @@ for i = 1:nVectors
                 
                 [isIsomorphic, p] = graphisomorphism(g1, g2);
                 
-                if isIsomorphic
+               if isIsomorphic
                     comp2 = comp2(p);
                     atoms2instances(comp2) = rowidx;
                 else

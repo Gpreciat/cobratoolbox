@@ -1,4 +1,4 @@
-function varargout = struct2xml( s, varargin )
+function varargout = struct2xml(s, varargin )
 % Convert a MATLAB structure into a xml file 
 %  [ ] = struct2xml( s, file )
 %  xml = struct2xml( s )

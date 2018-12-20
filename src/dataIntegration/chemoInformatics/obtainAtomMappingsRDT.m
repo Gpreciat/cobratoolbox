@@ -79,16 +79,16 @@ end
 % Delete the protons (hydrogens) for the metabolic network
 % From metabolites
 S = full(model.S);
-if isfield(model,'metFormulas')
-    hToDelete = ismember(model.metFormulas, 'H');
-    S(hToDelete, :) = [];
-    model.mets(hToDelete) = [];
-    % From reactions
-    hydrogenCols = all(S == 0, 1);
-    S(:, hydrogenCols) = [];
-    model.rxns(hydrogenCols) = [];
-    model.S = S;
-end
+% if isfield(model,'metFormulas')
+%     hToDelete = ismember(model.metFormulas, 'H');
+%     S(hToDelete, :) = [];
+%     model.mets(hToDelete) = [];
+%     % From reactions
+%     hydrogenCols = all(S == 0, 1);
+%     S(:, hydrogenCols) = [];
+%     model.rxns(hydrogenCols) = [];
+%     model.S = S;
+% end
 
 
 % Format inputs
