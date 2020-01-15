@@ -23,7 +23,7 @@ testMap = regexp( fileread('testMap.txt'), '\n', 'split')';
 % Generate new data
 printInRecon3Dmap(model.rxns);
 newMap = regexp( fileread('C__fakepath_data4ReconMap3_1.txt'), '\n', 'split')';
-delete('C__fakepath_data4ReconMap3_1.txt')
+%delete('C__fakepath_data4ReconMap3_1.txt')
 
 % Test the data
 assert(isequal(testMap, newMap), 'Reference map does not match.')
