@@ -20,7 +20,7 @@ function [model, metFormulae, elements, metEle, rxnBal, S_fill, solInfo, varargo
 %    model:          COBRA model
 %
 % OPTIONAL INPUTS (support name-value argument input):
-%    kownMets:       Known metabolites (cell array of strings or vector of met IDs) 
+%    knownMets:      Known metabolites (cell array of strings or vector of met IDs) 
 %                    [default all mets with nonempty .metFormulas]
 %    balancedRxns:   The set of reactions for inferring formulae (cell array of strings or vector of rxn IDs)
 %                    [default all non-exchange reactions]
@@ -38,6 +38,8 @@ function [model, metFormulae, elements, metEle, rxnBal, S_fill, solInfo, varargo
 %                      * 0:  The program assigns default names for conserved moieties (Conserve_a, Conserve_b, ...)
 %                      * 1:  Name true conserved moieties interactively (exclude dead end mets). 
 %                      * 2:  Name all interactively (including dead end)
+%                      * cell array of names for the conserved moieties, corresponding
+%                        to the columns in :math:`N` (N must be supplied as calcCMs to use this option)
 %    deadCMs:        true to include dead end metabolites when finding conserved moieties (default true)
 %    metMwRange:     the metabolite of interest (or its ID) for which the range of possible molecular weights is determined
 %                    (if supplied, inputs 'fillMets', ... , 'deadCMs' are all not used)
@@ -68,6 +70,11 @@ function [model, metFormulae, elements, metEle, rxnBal, S_fill, solInfo, varargo
 %                                       is obtained from. Ideally minForm if no numerical issue on feasibility.
 %                                       (minIncon/minMw/maxMw/minMw & maxMw if calling with option 'metMwRange')
 %                      * N:             the minimal conserved moiety vectors
+%                      * cmFormulae:    the chemical formulae for each conserved moiety in N
+%                      * cmUnknown:     logical vector indicating which columns in N represent moieties with unknown formulae.
+%                                       These are usually cofactors cycled in the network. 
+%                      * cmDeadend:     logical vector indicating which columns in N represent moieties in deadend metabolites. 
+%                                       These are usually isolated conversion steps between dead end metabolites. 
 %    LP:             LP problem structure for solveCobraLP (#components x 1)
 
 if ~isfield(model,'metFormulas')
@@ -76,60 +83,100 @@ end
 optArgin = {'knownMets', 'balancedRxns', 'fillMets', 'calcCMs', 'nameCMs', 'deadCMs', 'metMwRange'}; 
 defaultValues = {[], [], 'HCharge1', true, false, true, []};
 validator = {@(x) ischar(x) | iscellstr(x) | isvector(x), ...  % knownMets
-    @(x) ischar(x) | iscellstr(x) | isvector(x), ...  % balancedRxns
+    @(x) ischar(x) | iscellstr(x) | isvector(x) | isempty(x), ...  % balancedRxns
     @(x) ischar(x) | iscellstr(x), ...  % fillMets
     @(x) ischar(x) | isnumeric(x) | isscalar(x), ...  % calcCMs
-    @isscalar, @isscalar, ...    % nameCMs and deadCMs
+    @(x) isscalar(x) | iscell(x), @isscalar, ...    % nameCMs and deadCMs
     @(x) ischar(x) | isscalar(x)};  % metMwRange
-[tempArgin, jArg] = deal({}, 1);
 if isempty(varargin)
     varargin = {[]};
 end
-varargin = varargin(:);
-solverParamArg = false;
-while jArg <= min(numel(varargin), numel(optArgin))
-    if ischar(varargin{jArg}) && ((jArg ~= 1 && jArg ~= 3) || ~any(strcmp(model.mets, varargin{jArg}))) ...
-            && (jArg ~= 2 || ~any(strcmp(model.rxns, varargin{jArg}))) ...
-            && (jArg ~= 4 || (~strcmpi(varargin{jArg}, 'efmtool') && ~strcmpi(varargin{jArg}, 'null')))
-        % name-value pair arguments begin. Get the name-vale pair arguments
-        break
-    elseif isstruct(varargin{jArg})
-        % structure input. Assume it is a solver-specific parameter structure
-        solverParamArg = true;
-        break
-    elseif ~isempty(varargin{jArg}) || (jArg == 3 && isequal(varargin{jArg}, {}))
-        % true input if it is nonempty
-        tempArgin = [tempArgin; optArgin(jArg); varargin(jArg)];
+% get the cobra parameters for LP.
+cobraOptions = getCobraSolverParamsOptionsForType('LP');
+pSpos = 1;
+% parse the inputs accordingly.
+paramValueInput = false;
+if numel(varargin) > 0
+    %Check if we have parameter/value inputs.
+    for pSpos = 1:numel(varargin)
+        if isstruct(varargin{pSpos})
+            % its a struct, so yes, we do have additional inputs.
+            paramValueInput = true;
+            break;            
+        end
+        if ischar(varargin{pSpos}) && (any(strncmpi(varargin{pSpos},optArgin,length(varargin{pSpos}))) || any(ismember(varargin{pSpos},cobraOptions)))
+            % its a keyword, so yes, we have paramValu input.
+            paramValueInput = true;
+            break
+        end
     end
-    jArg = jArg + 1;
 end
-while jArg <= numel(varargin) - 1 && ~solverParamArg
-    if any(strncmp(optArgin, varargin{jArg}, numel(varargin{jArg})))
-        tempArgin = [tempArgin; varargin(jArg:(jArg + 1))];
-        jArg = jArg + 2;
+
+if ~paramValueInput
+    % we only have values specific to this function.
+    parser = inputParser();
+    % so build a parser and parse the data.
+    for jArg = 1:numel(optArgin)
+        parser.addOptional(optArgin{jArg}, defaultValues{jArg}, validator{jArg});        
+    end
+    % support for the different behavior of parser after R2017
+    verRe = regexp(version, '\(R(\d{4})[ab]\)$', 'tokens');
+    if ~isempty(verRe) && str2double(verRe{1}{1}) >= 2017 && numel(varargin) == 1 && isempty(varargin{1})
+        parser.parse();
     else
-        break
+        parser.parse(varargin{1:min(numel(varargin),numel(optArgin))});    
     end
-end
-% the rest are parameters for solveCobraLP
-varargin = varargin(jArg:end);
-
-% get printLevel from the cobra solver parameters if exists
-printLevel = 0;
-for j = 1:(numel(varargin) - 1)
-    if ischar(varargin{j}) && strcmpi(varargin{j}, 'printLevel')
-        printLevel = varargin{j + 1};
-        break
+    [cobraParams,solverParams] = parseSolverParameters('LP');
+    varargin = {};
+else    
+    % we do have solve specific parameters, so we need to also 
+    parser = inputParser();
+    optArgs = varargin(1:pSpos-1);
+    varargin = varargin(pSpos:end);    
+    for jArg = 1:numel(optArgs)
+        parser.addOptional(optArgin{jArg}, defaultValues{jArg}, validator{jArg});        
     end
+    if mod(numel(varargin),2) == 1
+        % this should indicate, that there is an LP solver struct somewhere!
+        for i = 1:2:numel(varargin)
+            if isstruct(varargin{i})
+                % reorder varargin
+                varargin = [varargin{1:i-1},varargin{i+1:end},varargin(i)];
+            end
+        end
+    end
+    
+    [cobraParams,solverParams] = parseSolverParameters('LP',varargin{:});
+    % now, we create a new parser, that parses all algorithm specific
+    % inputs.
+    for jArg = numel(optArgs)+1:numel(optArgin)
+        parser.addParameter(optArgin{jArg}, defaultValues{jArg}, validator{jArg});        
+    end      
+    % and extract the parameters from the field names, as CaseSensitive = 0
+    % only works for parameter/value pairs but not for fieldnames.
+    actualSolverParams = struct();
+    solverParamFields = fieldnames(solverParams);
+    functionParams = {};
+    % build the parameter/value pairs array
+    for i = 1:numel(solverParamFields)                
+        if ~any(strncmpi(solverParamFields{i},optArgin,length(solverParamFields{i})))            
+            actualSolverParams.(solverParamFields{i}) = solverParams.(solverParamFields{i});
+            solverParams = rmfield(solverParams,solverParamFields{i});
+        else
+            functionParams(end+1:end+2) = {solverParamFields{i}, solverParams.(solverParamFields{i})};
+        end
+    end    
+    % and parse them.
+    parser.CaseSensitive = 0;
+    parser.parse(optArgs{:},functionParams{:});    
+    % and also convert the cobra options into parameter/value pair lists.
+    varargin = cell(1,1+2*numel(cobraOptions));    
+    varargin{1} = actualSolverParams;    
+    for i = 1:numel(cobraOptions)
+        cOption = cobraOptions{i};
+        varargin([2*i, 2*i+1]) = {cOption,cobraParams.(cOption)};
+    end            
 end
-
-% parse the name-value arguments
-parser = inputParser();
-for jArg = 1:numel(optArgin)
-    parser.addParameter(optArgin{jArg}, defaultValues{jArg}, validator{jArg});
-end
-parser.CaseSensitive = false;
-parser.parse(tempArgin{:});
 
 metKnown = parser.Results.knownMets;
 rxns = parser.Results.balancedRxns;
@@ -156,9 +203,38 @@ if ischar(metFill)
         metFill = {metFill};
     end
 end
-if isempty(findCM) || (numel(findCM) == 1 && findCM)
+if isempty(findCM) || (isscalar(findCM) && findCM)
     findCM = 'efmtool';
 end
+CMfound = false;
+if ~ischar(findCM) && numel(findCM) > 1
+    % input findCMs is the extreme ray matrix for conserved moieties
+    if size(findCM, 1) ~= numel(model.mets)
+        warning(['''calcCMs'' appears to be an elementary moiety matrix but has #rows (%d) different from #mets (%d).\n' ...
+            'Use default way to find conserved moieties.'], size(findCM,1), numel(model.mets));
+        findCM = 'efmtool';
+    else
+        % extreme way matrix with correct size
+        CMfound = true;
+        N = findCM;
+    end
+end
+% check if nameCMs is a cell array of formulae for conserved moieties
+cmNamesSupplied = false;
+if iscell(nameCM)
+    if ~CMfound
+        warning(['''nameCMs'' is a cell array of formulae for conserved moieties,\n' ...'
+            'but ''calcCMs'' is not supplied as an elementary moiety matrix. Use default.'])
+        nameCM = 0;
+    elseif numel(nameCM) ~= size(N, 2)
+        warning(['# of supplied formulae for conserved moieties in ''nameCMs'' (%d) is not the same as\n' ...
+            '# of columns of the supplied elementary moiety matrix in ''calcCMs'' (%d). Use default.'], numel(nameCM), size(N, 2))
+        nameCM = 0;
+    else
+        cmNamesSupplied = true;
+    end
+end
+
 calcMetMwRange = false;
 if ~isempty(metInterest)
     % calculate the range for MW of metInterest, no metabolite for filling inconsistency
@@ -199,7 +275,7 @@ if any(metK == 0)
         error('metKnown indices must be positive integer.')
     end
 elseif calcMetMwRange && any(metK == metI)
-    if printLevel
+    if cobraParams.printLevel
         fprintf('The met of interest (supplied in the argument ''metMwRange'') already has a known formula. Nothing to calculate.\n');
     end
     
@@ -211,6 +287,15 @@ elseif calcMetMwRange && any(metK == metI)
     model = metMw; % range for the MW of the metabolite of interest as the 1st output
     return
 end
+% Check if there are mets/rxns with duplicated IDs, which will make the computation problematic.
+[model, isUnique] = checkCobraModelUnique(model, true);
+if ~isUnique
+    % rerun with the fixed model
+    [model, metFormulae, elements, metEle, rxnBal, S_fill, solInfo, varargout] = computeMetFormulae(model, varargin{:});
+    varargout = {varargout};
+    return
+end
+
 metKform = cellfun(@isempty, model.metFormulas(metK));
 if any(metKform)
     warning('Some mets in metKnown do not have formulas in the model. Ignore them.');
@@ -218,19 +303,7 @@ end
 metK = metK(~metKform);
 
 % get feasibility tolerance
-if ~isempty(varargin) && isstruct(varargin{1}) && isfield(varargin{1}, 'feasTol')
-    feasTol = varargin{1}.feasTol;
-else
-    feasTolInInput = find(strcmp(varargin,'feasTol'),1);
-    if ~isempty(feasTolInInput)
-        if feasTolInInput == numel(varargin) || ~isnumeric(varargin{feasTolInInput+1})
-            error('Invalid input for the parameter feasTol.');
-        end
-        feasTol = varargin{find(feasTolInInput) + 1};
-    else
-        feasTol = getCobraSolverParams('LP',{'feasTol'});
-    end
-end
+feasTol = cobraParams.feasTol;
 
 digitRounded = 12;
 %% Preprocess
@@ -391,7 +464,7 @@ for jEC = 1:nEC
         end
     end
     
-    % solve for minimum inconsistency
+    % solve for minimum inconsistency    
     sol(jEC).minIncon = solveCobraLP(LPj, varargin{:});
     
     if isfield(sol(jEC).minIncon, 'full') && numel(sol(jEC).minIncon.full) == size(LPj.A, 2)
@@ -641,6 +714,9 @@ solInfo.metEleUnknwon = metEleU;
 if ~calcMetMwRange
     solInfo.S_fill = S_fill;
     solInfo.N = [];
+    solInfo.cmFormulae = {};
+    solInfo.cmUnknown = [];
+    solInfo.cmDeadend = [];
     S_fill = sparse(mF, numel(model.rxns));
 end
 %   each item in solEachEle has the following three fields:
@@ -676,7 +752,7 @@ end
 solInfo.feasTol = feasTol;
 
 if any(strcmp(stat, 'infeasible'))
-    if printLevel
+    if cobraParams.printLevel
         fprintf('Critical failure: no feasible solution is found.\n')
     end
     solInfo.stat = 'infeasible';
@@ -716,34 +792,31 @@ for jEC = 1:nEC
     end
 end
 if ~calcMetMwRange
-    %% find conserved moieties
-    CMfound = false;
-    N = [];
-    if size(findCM, 1) == numel(model.mets)
-        % input is the null space matrix / set of extreme rays
-        N = findCM;
-        CMfound = true;
-    elseif ~ischar(findCM) && numel(findCM) > 1
-        warning('Input extreme ray matrix has #rows (%d) different from #mets (%d). Ignore.', size(findCM,1), numel(model.mets));
-        findCM = 'efmtool';
-    end
-    if ischar(findCM) && ~CMfound
-         cargin = varargin;
-        if numel(varargin) > 0 && isstruct(varargin{1})           
-            cargin(1) = []; % remove the first element
+    %% find conserved moieties        
+    Ncm = [];
+    if ~CMfound
+        % extreme ray matrix for conserved moieties not found yet
+        N = [];
+        if ischar(findCM)
+            % need to find extreme ray matrix for conserved moieties
+            cargin = varargin;
+            if numel(varargin) > 0 && isstruct(varargin{1})
+                cargin(1) = []; % remove the first element
+            end
+            N = findElementaryMoietyVectors(model, 'method', findCM, 'deadCMs', deadCM, cargin{:});
+            CMfound = true;
         end
-        N = findElementaryMoietyVectors(model, 'method', findCM, 'deadCMs', deadCM, cargin{:});
-        CMfound = true;
     end
     if CMfound
-        if printLevel
+        if cobraParams.printLevel
             fprintf('Elementary conserved moiety vectors found.\n');
         end
         % clear close-to-zero values
         N(abs(N) < 1e-8) = 0;
         N = sparse(N);
         % true generic conserved moieties, positive and not involving known mets
-        Ncm = N(:,~any(N < 0, 1) & ~any(N(metK,:),1));
+        cmUnknown = ~any(N < 0, 1) & ~any(N(metK,:),1);
+        Ncm = N(:, cmUnknown);
         % add them into formulas
         metEle = [metEle, Ncm];
         elements = [eleK(:); cell(size(Ncm,2),1)];
@@ -755,50 +828,64 @@ if ~calcMetMwRange
             elements{nE+j} = ['Conserve_' num2alpha(j2)];
             j2 = j2 + 1;
         end
+        % get dead end metatbolites
+        [~, removedMets] = removeDeadEnds(model);
+        metDead = findMetIDs(model, removedMets);
+        cmDeadend = any(N(metDead, :), 1);
     else
         elements = eleK(:);
     end
     
     % get formulae in string
     model.metFormulas = elementalMatrixToFormulae(metEle, elements, 10);
-    if nameCM > 0 && CMfound
+    % store the formulae used for the conserved moieties
+    cmFormulae = elements((nE + 1):end);
+    if cmNamesSupplied
+        cmFormulae(:) = nameCM(cmUnknown);
+        elements((nE + 1):end) = cmFormulae;
+        model.metFormulas = elementalMatrixToFormulae(round(metEle, 8), elements, 10);
+        [metEle, elements] = getElementalComposition(model.metFormulas, [], true);
+    elseif nameCM > 0 && CMfound
         % manually name conserved moieties
         ele0 = elements;
         nDefault = 0;
         nCM = size(Ncm,2);
         eleDel = false(nE + nCM, 1);
-        if nameCM == 1
-            % get dead end metatbolites
-            [~,removedMets] = removeDeadEnds(model);
-            metDead = findMetIDs(model,removedMets);
-        end
-        for j = 1:nCM
+        for j = 1:nCM            
             fprintf('\n');
-            writeCell2Text([model.mets(Ncm(:,j)~=0),model.metFormulas(Ncm(:,j)~=0),...
-                model.metNames(Ncm(:,j)~=0)]);
+            fprintf(strjoin(strcat(model.mets(Ncm(:,j)~=0), '\t', model.metFormulas(Ncm(:,j)~=0),...
+                '\t', model.metNames(Ncm(:,j)~=0)), '\n'));
             fprintf('\n');
-            if nameCM == 1 && any(Ncm(metDead,j),1)
-                % use the defaulted for dead end mets
+            if (isscalar(nameCM) && nameCM == 1 && any(Ncm(metDead,j),1)) ...  % option to use the defaulted for dead end mets
+                    || (iscell(nameCM) && numel(nameCM) < j)  % no. of user-supplied moiety names < no. of conserved moieties
+                % use the defaulted
                 nDefault = nDefault + 1;
                 elements{nE+j} = ele0{nE + nDefault};
             else
-                cont = false;
-                while true
-                    s = input(['Enter the formula for the conserved moiety (e.g. OHRab_cd):\n',...
-                        '(hit return to use default name ''Conserve_xxx'')\n'],'s');
-                    if isempty(s)
-                        % use the defaulted
-                        nDefault = nDefault + 1;
-                        elements{nE+j} = ele0{nE + nDefault};
-                        break
-                    end
-                    re = regexp(s,'[A-Z][a-z_]*(\-?\d+\.?\d*)?','match');
-                    if strcmp(strjoin(re,''),s)
-                        % manual input formula, continue to checking
-                        cont = true;
-                        break
+                if iscell(nameCM)
+                    % use the user-supplied names for conserved moieties
+                    s = nameCM{j};
+                    cont = true;
+                else
+                    cont = false;
+                    while true
+                        s = input(['Enter the formula for the conserved moiety (e.g. OHRab_cd):\n',...
+                            '(hit return to use default name ''Conserve_xxx'')\n'],'s');
+                        if isempty(s)
+                            % use the defaulted
+                            nDefault = nDefault + 1;
+                            elements{nE+j} = ele0{nE + nDefault};
+                            break
+                        end
+                        re = regexp(s,'[A-Z][a-z_]*(\-?\d+\.?\d*)?','match');
+                        if strcmp(strjoin(re,''),s)
+                            % manual input formula, continue to checking
+                            cont = true;
+                            break
+                        end
                     end
                 end
+                cmFormulae{j} = s;
                 if cont
                     % get the matrix for the input formula
                     nEnew = numel(elements) - nE - nCM;
@@ -838,13 +925,33 @@ if ~calcMetMwRange
             elements{nE + j} = nameJ;
         end
     end
-    solInfo.N = N;
+    metEle = round(metEle, 8); % rounding off to avoid tolerance problems
     idCharge = strcmp(elements, 'Charge');
+    % get the maximal chemical formula for each conserved moiety
+    if CMfound
+        solInfo.cmFormulae = repmat({''}, 1, size(N, 2));
+        % formulae for generic moieties determined above
+        solInfo.cmFormulae(cmUnknown) = cmFormulae;
+        % formulae for known moieties
+        cmKnownFormulae = zeros(sum(~cmUnknown), numel(elements));
+        cmKnown = find(~cmUnknown);
+        for j = 1:numel(cmKnown)
+            % get the maximal chemical formula shared among all mets in the same column in N
+            metJ = N(:, cmKnown(j)) ~= 0;
+            cmKnownFormulae(j, :) = min(metEle(metJ, :), [], 1);    
+        end
+        solInfo.cmFormulae(cmKnown) = elementalMatrixToFormulae(cmKnownFormulae(:, ~idCharge), elements(~idCharge), 10);
+        solInfo.cmUnknown = cmUnknown(:)';
+        solInfo.cmDeadend = cmDeadend;
+    end
+    solInfo.N = N;
     if any(idCharge)
-        if isfield(model, 'metCharges')
-            model.metCharges = full(metEle(:, idCharge));
-        elseif isfield(model, 'metCharge')
+        if ~isfield(model, 'metCharges') && isfield(model, 'metCharge')
+            % if the model has *.metCharge but not *.metCharges, use *.metCharge
             model.metCharge = full(metEle(:, idCharge));
+        else
+            % otherwise use *.metCharges
+            model.metCharges = full(metEle(:, idCharge));
         end
     end
     model.metFormulas = elementalMatrixToFormulae(metEle(:, ~idCharge), elements(~idCharge), 10);

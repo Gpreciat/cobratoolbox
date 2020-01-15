@@ -14,26 +14,26 @@ function solution = optimizeCardinality(problem, param)
 % INPUT:
 %    problem:     Structure containing the following fields describing the problem:
 %
-%                   * .p - size of vector `x`
-%                   * .q - size of vector `y`
-%                   * .r - size of vector `z`
-%                   * .A - `s x (p+q+r)` LHS matrix
+%                   * .p - size of vector `x` OR a `size(A,2) x 1` boolean indicating columns of A corresponding to x.
+%                   * .q - size of vector `y` OR a `size(A,2) x 1` boolean indicating columns of A corresponding to y.
+%                   * .r - size of vector `z` OR a `size(A,2) x 1`boolean indicating columns of A corresponding to z.
+%                   * .A - `s x size(A,2)` LHS matrix
 %                   * .b - `s x 1` RHS vector
 %                   * .csense - `s x 1` Constraint senses, a string containing the constraint sense for
 %                     each row in `A` ('E', equality, 'G' greater than, 'L' less than).
-%                   * .lb - `(p+q+r) x 1` Lower bound vector
-%                   * .ub - `(p+q+r) x 1` Upper bound vector
-%                   * .c - `(p+q+r) x 1` linear objective function vector
+%                   * .lb - `size(A,2) x 1` Lower bound vector
+%                   * .ub - `size(A,2) x 1` Upper bound vector
+%                   * .c -  `size(A,2) x 1` linear objective function vector
 %
 % OPTIONAL INPUTS:
 %    problem:     Structure containing the following fields describing the problem:
 %                   * .osense - Objective sense  for problem.c only (1 means minimise (default), -1 means maximise)
+%                   * .k - `p x 1` IR `size(A,2) x 1` strictly positive weight vector on minimise `||x||_0`
+%                   * .d - `q x 1` OR `size(A,2) x 1` strictly positive weight vector on maximise `||y||_0`
 %                   * .lambda0 - trade-off parameter on minimise `||x||_0`
 %                   * .lambda1 - trade-off parameter on minimise `||x||_1`
-%                   * .k - `p x 1` strictly positive weight vector on minimise `||x||_0`
 %                   * .delta0 - trade-off parameter on maximise `||y||_0`
 %                   * .delta1 - trade-off parameter on maximise `||y||_1
-%                   * .d - `q x 1` strictly positive weight vector on maximise `||y||_0`
 %
 %    param:      Parameters structure:
 %                   * .printLevel - greater than zero to recieve more output
@@ -56,6 +56,12 @@ function solution = optimizeCardinality(problem, param)
 %                     * 0 =  Infeasible
 %                     * -1=  Invalid input
 %
+% OPTIONAL OUTPUT:
+%    solution:    Structure may also contain the following field:
+%                   * .xyz - 'size(A,2) x 1` solution vector, where model.p,q,r are 'size(A,2) x 1` boolean vectors and 
+%                     x=solution.xyz(problem.p);
+%                     y=solution.xyz(problem.q);
+%                     z=solution.xyz(problem.r);
 
 % .. Author: - Hoai Minh Le &  Ronan Fleming
 
@@ -501,10 +507,10 @@ switch param.warmStartMethod
         minlb=-1e4*ones(length(lb2),1);
         minlb2=max(minlb,lb2);
         
-        full = lb2 + diag(rand(2*p+2*q+r,1))*(maxub2 - minlb2);
-        x = full(1:p);
-        y = full(p+1:p+q);
-        z = full(p+q+1:p+q+r);
+        fullStart = lb2 + rand(2*p+2*q+r,1).*(maxub2 - minlb2);
+        x = fullStart(1:p);
+        y = fullStart(p+1:p+q);
+        z = fullStart(p+q+1:p+q+r);
 %         w = full(p+q+r+1:2*p+q+r);
 %         t = full(2*p+q+r+1:2*p+2*q+r);
 end
@@ -526,8 +532,8 @@ obj = [c(1:p)-x_bar;c(p+1:p+q)-y_bar;c(p+q+1:p+q+r);lambda0*theta*ones(p,1);-del
 % t >= theta*d.*y       -> theta*d.*y - t <= 0
 % t >= -theta*d.*y      -> -theta*d.*y - t <= 0
 A2 = [A                                                        sparse(s,p)      sparse(s,q);
-       sparse(diag(k))   sparse(p,q)             sparse(p,r)     -speye(p)      sparse(p,q);
-      -sparse(diag(k))   sparse(p,q)             sparse(p,r)     -speye(p)      sparse(p,q);
+       sparse(1:p, 1:p, k)   sparse(p,q)             sparse(p,r)     -speye(p)      sparse(p,q);
+      -sparse(1:p, 1:p, k)   sparse(p,q)             sparse(p,r)     -speye(p)      sparse(p,q);
        sparse(q,p)       theta*spdiags(d,0,q,q)  sparse(q,r)    sparse(q,p)      -speye(q);
       sparse(q,p)       -theta*spdiags(d,0,q,q)  sparse(q,r)    sparse(q,p)      -speye(q)];
 b2 = [b; zeros(2*p+2*q,1)];

@@ -1,8 +1,8 @@
-Guide on reporting issues/enhancements
-======================================
+Issues/enhancements guide
+-------------------------
 
 What should I do before opening an issue?
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Following these guidelines helps maintainers and the community
 understand your report |pencil|, reproduce the behavior |computer|, and
@@ -29,7 +29,7 @@ If you provide snippets in the issue/pull request, use `Markdown code
 blocks <https://help.github.com/articles/markdown-basics/#multiple-lines>`__.
 
 How can I report an issue (or enhancement)?
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Explain the problem and include **additional details** to help
 maintainers reproduce the problem:
@@ -80,52 +80,52 @@ Provide more context by answering these **questions**:
 
 .. |macos| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/apple.png" height="20px" width="20px" alt="macOS">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/apple.png" height="20px" width="20px" alt="macOS">
 
 
 .. |linux| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/linux.png" height="20px" width="20px" alt="linux">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/linux.png" height="20px" width="20px" alt="linux">
 
 
 .. |windows| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/windows.png" height="20px" width="20px" alt="windows">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/windows.png" height="20px" width="20px" alt="windows">
 
 
 .. |warning| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/warning.png" height="20px" width="20px" alt="warning">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/warning.png" height="20px" width="20px" alt="warning">
 
 
 .. |matlab| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/matlab.png" height="20px" width="20px" alt="matlab">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/matlab.png" height="20px" width="20px" alt="matlab">
 
 
 .. |tada| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/tada.png" height="20px" width="20px" alt="tada">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/tada.png" height="20px" width="20px" alt="tada">
 
 
 .. |thumbsup| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/thumbsUP.png" height="20px" width="20px" alt="thumbsup">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/thumbsUP.png" height="20px" width="20px" alt="thumbsup">
 
 
 .. |bulb| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/bulb.png" height="20px" width="20px" alt="bulb">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/bulb.png" height="20px" width="20px" alt="bulb">
 
 
 .. |pencil| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/pencil.png" height="20px" width="20px" alt="pencil">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/pencil.png" height="20px" width="20px" alt="pencil">
 
 
 .. |computer| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/computer.png" height="20px" width="20px" alt="computer">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/computer.png" height="20px" width="20px" alt="computer">
 
 
 .. |tutorials| raw:: html

@@ -1,7 +1,10 @@
 .. _styleGuide:
 
 Style guide
-===========
+-----------
+
+A comprehensive MATLAB style guide written by Richard Jonson can be
+found [here](http://www.datatool.com/downloads/MatlabStyle2%20book.pdf).
 
 Code
 ~~~~
@@ -18,6 +21,7 @@ Code
    This also improves readability. e.g. ``a = [1, 2, 3; 4, 5, 6];``
    instead of ``a=[1,2,3;4,5,6]``;
 -  Include a single line of whitespace between blocks of code
+-  Include a whitespace after a comment sign ``%``
 
 2. **Variable names**
 
@@ -64,7 +68,8 @@ Code
 Documentation and comments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  Make sure the code is fully documented and commented
+-  Make sure the code is fully documented and commented, especially parts of
+   the code that might be difficult to understand for beginner users.
 -  Header for each file with the following elements:
 
    -  Brief description (easy and short functions) or more detailed
@@ -88,6 +93,7 @@ Documentation and comments
       ``How it is done through a more detailed paragraph``.
    -  If the code is divided in blocks, you can also introduce briefly
       what is the function of each block beforehand.
+   -  Format the comments with a whitespace after the ``%`` sign. Try to use lowercase letters for comments.
 
 .. raw:: html
 
@@ -140,97 +146,97 @@ Git commit messages
 
 .. |macos| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/apple.png" height="20px" width="20px" alt="macOS">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/apple.png" height="20px" width="20px" alt="macOS">
 
 
 .. |linux| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/linux.png" height="20px" width="20px" alt="linux">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/linux.png" height="20px" width="20px" alt="linux">
 
 
 .. |windows| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/windows.png" height="20px" width="20px" alt="windows">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/windows.png" height="20px" width="20px" alt="windows">
 
 
 .. |warning| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/warning.png" height="20px" width="20px" alt="warning">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/warning.png" height="20px" width="20px" alt="warning">
 
 
 .. |matlab| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/matlab.png" height="20px" width="20px" alt="matlab">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/matlab.png" height="20px" width="20px" alt="matlab">
 
 
 .. |tada| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/tada.png" height="20px" width="20px" alt="tada">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/tada.png" height="20px" width="20px" alt="tada">
 
 
 .. |thumbsup| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/thumbsUP.png" height="20px" width="20px" alt="thumbsup">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/thumbsUP.png" height="20px" width="20px" alt="thumbsup">
 
 
 .. |bulb| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/bulb.png" height="20px" width="20px" alt="bulb">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/bulb.png" height="20px" width="20px" alt="bulb">
 
 
 .. |pencil| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/pencil.png" height="20px" width="20px" alt="pencil">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/pencil.png" height="20px" width="20px" alt="pencil">
 
 
 .. |computer| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/computer.png" height="20px" width="20px" alt="computer">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/computer.png" height="20px" width="20px" alt="computer">
 
 
 .. |bug| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/bug.png" height="20px" width="20px" alt="bug">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/bug.png" height="20px" width="20px" alt="bug">
 
 
 .. |apple| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/apple.png" height="20px" width="20px" alt="apple">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/apple.png" height="20px" width="20px" alt="apple">
 
 
 .. |art| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/art.png" height="20px" width="20px" alt="art">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/art.png" height="20px" width="20px" alt="art">
 
 
 .. |fire| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/fire.png" height="20px" width="20px" alt="fire">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/fire.png" height="20px" width="20px" alt="fire">
 
 
 .. |green_heart| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/green_heart.png" height="20px" width="20px" alt="green_heart">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/green_heart.png" height="20px" width="20px" alt="green_heart">
 
 
 .. |memo| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/memo.png" height="20px" width="20px" alt="memo">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/memo.png" height="20px" width="20px" alt="memo">
 
 
 .. |penguin| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/penguin.png" height="20px" width="20px" alt="penguin">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/penguin.png" height="20px" width="20px" alt="penguin">
 
 
 .. |racehorse| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/racehorse.png" height="20px" width="20px" alt="racehorse">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/racehorse.png" height="20px" width="20px" alt="racehorse">
 
 
 .. |white_check_mark| raw:: html
 
-   <img src="https://prince.lcsb.uni.lu/jenkins/userContent/white_check_mark.png" height="20px" width="20px" alt="white_check_mark">
+   <img src="https://prince.lcsb.uni.lu/cobratoolbox/img/white_check_mark.png" height="20px" width="20px" alt="white_check_mark">
 
 
 .. |tutorials| raw:: html

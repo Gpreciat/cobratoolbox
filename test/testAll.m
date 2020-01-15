@@ -26,6 +26,9 @@ if isempty(strfind(getenv('HOME'), 'jenkins'))
         launchTestSuite = false;
     end
 else
+    % on the CI, always reset the path to make absolutely sure, that we test
+    % the current version
+    restoredefaultpath;
     launchTestSuite = true;
 end
 
@@ -152,12 +155,10 @@ if launchTestSuite
 
         fprintf('\n\n -> The code grade is %s (%1.2f%%).\n\n', grade, avMsgsPerc);
 
+        % set the new badge
         if ~isempty(strfind(getenv('HOME'), 'jenkins'))
-            % set the new badge
-            system(['cp /mnt/prince-data/jenkins/userContent/codegrade-', grade, '.svg /mnt/prince-data/jenkins/userContent/codegrade.svg']);
-
-            % secure copy the badge from the slave
-            system('scp -P 8022 /mnt/prince-data/jenkins/userContent/codegrade.svg jenkins@prince-server.lcsb.uni.lux:/var/lib/jenkins/userContent');
+            coverageBadgePath = [getenv('ARTENOLIS_DATA_PATH') filesep 'cobratoolbox' filesep 'codegrade' filesep];
+            system(['cp ' coverageBadgePath 'codegrade-', grade, '.svg '  coverageBadgePath 'codegrade.svg']);
         end
     end
 end
