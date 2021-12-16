@@ -1,6 +1,8 @@
 
-clear
-global CBTDIR;
+global CBTDIR
+if isempty(CBTDIR)
+    initCobraToolbox
+end
 
 % Select a path
 path = [CBTDIR filesep 'src' filesep 'analysis' filesep 'sampling' filesep 'testRHMC'];
