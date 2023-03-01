@@ -189,8 +189,7 @@ aRxns = regexprep({d.name}', '.rxn', '');
 assert(~isempty(aRxns), 'No rxn file was written.');
 rxnsToAM = rxnsToAM(ismember(rxnsToAM, aRxns));
 
-
-%check quality of unmapped RXN files
+% check quality of unmapped RXN files
 model = checkRXNFiles(model, rxnResultsDir_unMapped);
 
 %choose this option to write RXN but not atom map them
