@@ -75,7 +75,7 @@ for i = 1:nRxns
         
         if checkDecompartmentaliseRXN==1
             % Read atom mapping from RXNfile to test if it is decompartmentalised
-            [atomMets,metEls, metNrs, atomTransitionNrs,isSubstrate,instances] = readRXNFile(model.rxns{1},RXNFileDir);
+            [atomMets,metEls, metNrs, atomTransitionNrs,isSubstrate,instances] = readRXNFile(model.rxns{i},RXNFileDir);
             
             decompartmentaliseRXN=0;
             atomMetAbbr  = atomMets{1};
