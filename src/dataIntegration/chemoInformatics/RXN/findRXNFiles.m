@@ -68,7 +68,9 @@ if any(~rxnRXNBool)
     else
         fprintf('RXN files found for all %d internal reactions.\n', sum(rxnRXNBool & internalRxnBool));
     end
-
+else
+    model = findSExRxnInd(model,[],0);
+    internalRxnBool = model.SIntRxnBool;
 end
 
 metRXNBool = any(model.S(:,rxnRXNBool),2); % True for metabolites in atom mapped reactions
