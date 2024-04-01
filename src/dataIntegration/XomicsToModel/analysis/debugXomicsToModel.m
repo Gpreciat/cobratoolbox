@@ -56,7 +56,7 @@ if isempty(modelGenerationReport)
 else
     coreData.rxns = modelGenerationReport.coreRxnAbbr0;
     coreData.mets = modelGenerationReport.coreMetAbbr0;
-    coreData.genes = modelGenerationReport.activeEntrezGeneID0;
+    coreData.genes = modelGenerationReport.activeGeneID0;
 end
 
 % Find all debug files in specified directory
