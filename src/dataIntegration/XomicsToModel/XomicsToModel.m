@@ -1534,7 +1534,7 @@ end
 if (isfield(specificData, 'inactiveGenes') && ~isempty(specificData.inactiveGenes)) || ~isempty(omicsInactiveGenes)
     %save input model
     oldModel = model;
-    
+
     [~, nRxn] = size(model.S);
     if param.printLevel > 0
         disp('--------------------------------------------------------------')
@@ -1544,7 +1544,8 @@ if (isfield(specificData, 'inactiveGenes') && ~isempty(specificData.inactiveGene
     
     activeGeneID0 = unique([specificData.activeGenes; activeOmicsGeneID]);
     
-    if param.curationOverOmics % Manual curation takes precedence over omics
+    if param.curationOverOmics 
+        % Manual curation takes precedence over omics
 
         % Identifies inactive genes from omics that should be active
         % accoding by manual curation
@@ -1563,7 +1564,8 @@ if (isfield(specificData, 'inactiveGenes') && ~isempty(specificData.inactiveGene
         end
         activeOmicsGeneID(active2removeBool) = [];
 
-    else % Omics takes precedence over manual curation
+    elseif ~param.curationOverOmics && ~isempty(specificData.inactiveGenes) 
+        % Omics takes precedence over manual curation
 
         % Identifies inactive genes from manual curation that should be 
         % active accoding by omics data
@@ -1579,6 +1581,8 @@ if (isfield(specificData, 'inactiveGenes') && ~isempty(specificData.inactiveGene
             disp(specificData.activeGenes(active2removeBool))
         end
         specificData.activeGenes(active2removeBool) = [];
+    else
+        active2removeBool = 0;
     end
 
     if param.printLevel > 0 && sum(active2removeBool) == 0
